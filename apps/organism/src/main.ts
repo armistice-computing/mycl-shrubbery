@@ -58,6 +58,7 @@ import type {
   MnAdvancedWireMenu,
   MnExportDialog,
   MnVaultPreviewDialog,
+  MnSettingsActionDetail,
   MnVaultPreviewActionDetail,
   MnFolderPickerDialog,
   MnFolderPickerOption,
@@ -940,7 +941,7 @@ function confirmAction(opts: ConfirmDialogOptions): Promise<boolean> {
   })
 }
 
-type DocumentImportPickerKind = 'files' | 'folder' | 'vault-folder' | 'vault-zip' | 'vault-recent'
+type DocumentImportPickerKind = 'files' | 'folder'
 
 /**
  * The dev server's scripted Door 1 (`?vault-mock`), for checking the dialog
@@ -983,35 +984,6 @@ function pickDocumentImportKind(): Promise<DocumentImportPick | null> {
   editableOption.append(editableBox, document.createTextNode('Make imported PDFs, EPUBs and Word files editable (they arrive read-only, as the original)'))
   confirmationDialogEl.append(editableOption)
 
-  let finishPick: (kind: DocumentImportPickerKind | null) => void = () => {}
-  const finish = (kind: DocumentImportPickerKind | null): void => finishPick(kind)
-
-  // Door 1: a whole vault, a folder of notes or a .zip of one.
-  const vaultOption = document.createElement('div')
-  vaultOption.className = 'import-vault-option'
-  vaultOption.setAttribute('data-import-vault', '')
-  vaultOption.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--mn-color-border-subtle, #e5e7eb);font-size:13px;'
-  const vaultLabel = document.createElement('span')
-  vaultLabel.style.cssText = 'flex:1 1 100%;'
-  vaultLabel.textContent = 'Or bring in a whole vault: a folder of notes, like an Obsidian vault, or a .zip of one.'
-  const vaultButton = (text: string, kind: DocumentImportPickerKind): HTMLButtonElement => {
-    const button = document.createElement('button')
-    button.type = 'button'
-    button.textContent = text
-    button.setAttribute('data-import-vault-kind', kind)
-    button.style.cssText = 'padding:5px 10px;border:1px solid var(--mn-color-border-default, #d1d5db);border-radius:6px;background:var(--mn-color-surface-base, #fff);color:inherit;font:inherit;cursor:pointer;'
-    button.addEventListener('click', () => finish(kind))
-    return button
-  }
-  vaultOption.append(
-    vaultLabel,
-    vaultButton('Vault folder…', 'vault-folder'),
-    vaultButton('Vault .zip…', 'vault-zip'),
-    // Finds a running or finished import again after its dialog closed.
-    vaultButton('Recent imports…', 'vault-recent'),
-  )
-  if (vaultImportOffered()) confirmationDialogEl.append(vaultOption)
-
   return new Promise((resolve) => {
     function cleanup(): void {
       confirmationDialogEl.removeEventListener('mn-confirm', onFiles)
@@ -1019,15 +991,13 @@ function pickDocumentImportKind(): Promise<DocumentImportPick | null> {
       confirmationDialogEl.removeEventListener('mn-cancel', onCancel)
       confirmationDialogEl.secondaryConfirmText = ''
       editableOption.remove()
-      vaultOption.remove()
     }
-    finishPick = (kind: DocumentImportPickerKind | null): void => {
+    const finish = (kind: DocumentImportPickerKind | null): void => {
       const editable = editableBox.checked
       cleanup()
       confirmationDialogEl.hide()
       resolve(kind ? { kind, editable } : null)
     }
-    const finish = finishPick
     function onFiles(): void {
       finish('files')
     }
@@ -4483,6 +4453,64 @@ async function openVaultPreview(kind: VaultSourceKind): Promise<void> {
   await controller.choose(currentGraphId, kind)
 }
 
+type VaultSourcePick = VaultSourceKind | 'recent'
+
+/** Settings → Imports → Import Obsidian vault: a folder or a .zip, or the
+ * imports already started. The import makes a new graph. */
+function pickVaultSource(): Promise<VaultSourcePick | null> {
+  confirmationDialogEl.title = 'Import Obsidian vault'
+  confirmationDialogEl.message = 'Bring in a whole vault as a new graph: a folder of notes, like an Obsidian vault, or a .zip of one. The vault itself is not changed.'
+  confirmationDialogEl.confirmText = 'Choose Folder'
+  confirmationDialogEl.secondaryConfirmText = 'Choose .zip'
+  confirmationDialogEl.cancelText = 'Cancel'
+  confirmationDialogEl.variant = 'default'
+  confirmationDialogEl.loading = false
+
+  // Finds a running or finished import again after its dialog closed.
+  const recent = document.createElement('button')
+  recent.type = 'button'
+  recent.textContent = 'Recent imports…'
+  recent.setAttribute('data-import-vault-kind', 'recent')
+  recent.style.cssText = 'margin-top:10px;padding:5px 10px;border:1px solid var(--mn-color-border-default, #d1d5db);border-radius:6px;background:var(--mn-color-surface-base, #fff);color:inherit;font:inherit;font-size:13px;cursor:pointer;'
+  confirmationDialogEl.append(recent)
+
+  return new Promise((resolve) => {
+    const finish = (pick: VaultSourcePick | null): void => {
+      confirmationDialogEl.removeEventListener('mn-confirm', onFolder)
+      confirmationDialogEl.removeEventListener('mn-secondary-confirm', onZip)
+      confirmationDialogEl.removeEventListener('mn-cancel', onCancel)
+      confirmationDialogEl.secondaryConfirmText = ''
+      recent.remove()
+      confirmationDialogEl.hide()
+      resolve(pick)
+    }
+    const onFolder = (): void => finish('folder')
+    const onZip = (): void => finish('zip')
+    const onCancel = (): void => finish(null)
+    recent.addEventListener('click', () => finish('recent'))
+    confirmationDialogEl.addEventListener('mn-confirm', onFolder)
+    confirmationDialogEl.addEventListener('mn-secondary-confirm', onZip)
+    confirmationDialogEl.addEventListener('mn-cancel', onCancel)
+    confirmationDialogEl.show()
+  })
+}
+
+async function importVaultFromSettings(): Promise<void> {
+  const pick = await pickVaultSource()
+  if (!pick) return
+  if (pick === 'recent') await vaultImport()?.showRecent()
+  else await openVaultPreview(pick)
+}
+
+// Settings' "Import Obsidian vault" is the whole-vault import where the app
+// has it; elsewhere (the browser dev server) the Settings page keeps its zip
+// import into the open graph. Caught before the page's own handler.
+window.addEventListener('mn-settings-action', ((event: CustomEvent<MnSettingsActionDetail>) => {
+  if (event.detail?.actionId !== 'import-obsidian' || !vaultImportOffered()) return
+  event.stopPropagation()
+  afterSettingsClose(() => { void importVaultFromSettings() })
+}) as EventListener, true)
+
 vaultPreviewDialogEl.addEventListener('mn-vault-preview-action', ((event: CustomEvent<MnVaultPreviewActionDetail>) => {
   const controller = vaultImport()
   if (!controller) return
@@ -4513,14 +4541,6 @@ async function importDocumentsFromSidebar(): Promise<void> {
   const pick = await pickDocumentImportKind()
   if (!pick) {
     ok('document import cancelled')
-    return
-  }
-  if (pick.kind === 'vault-recent') {
-    void vaultImport()?.showRecent()
-    return
-  }
-  if (pick.kind === 'vault-folder' || pick.kind === 'vault-zip') {
-    void openVaultPreview(pick.kind === 'vault-zip' ? 'zip' : 'folder')
     return
   }
   const files = await pickDocumentFiles({ directory: pick.kind === 'folder' })

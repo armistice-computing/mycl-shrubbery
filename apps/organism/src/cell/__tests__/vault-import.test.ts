@@ -28,8 +28,8 @@ function recorder(answer: (command: string) => unknown) {
 }
 
 describe('Door 1 switch', () => {
-  it('stays off in this release, so the import menu shows no vault entry', () => {
-    expect(VAULT_IMPORT_ENABLED).toBe(false)
+  it('is on in this release, so the import menu offers a whole vault', () => {
+    expect(VAULT_IMPORT_ENABLED).toBe(true)
   })
 })
 

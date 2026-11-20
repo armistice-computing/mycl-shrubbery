@@ -46,16 +46,13 @@ export const SYNC_FEATURES_ENABLED = false
 export const IMAGE_GENERATION_ENABLED = false
 
 /**
- * VAULT_IMPORT_ENABLED: bringing in a whole vault (Door 1) waits for its last
- * step (Eschaton, 2026-11-18: wanted before Friday, removed at the last
- * minute if it misses). The app can already choose a folder or a .zip, scan
- * it and show what it found (cell/vault-capture.ts, the vault preview
- * dialog), but nothing writes the scan into the graph yet: Epsilon builds
- * that commit step next. While off, the import dialog has no vault choice.
- * Turn this on when the commit step exists and the dialog's Import button
- * is wired to it.
+ * VAULT_IMPORT_ENABLED: bringing in a whole vault (Door 1). The person
+ * chooses a folder or a .zip in a native chooser, the app scans it and shows
+ * what an import would make, and Import writes it into a NEW graph (the
+ * commit step landed 2026-11-19). On for 0.1.0 (Eschaton, 2026-11-20).
+ * While off, the import dialog has no vault choice.
  */
-export const VAULT_IMPORT_ENABLED = false
+export const VAULT_IMPORT_ENABLED = true
 
 /**
  * CITATIONS_ENABLED: making citations waits for Zotero support (Eschaton,

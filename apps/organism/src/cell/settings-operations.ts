@@ -233,7 +233,7 @@ function actionDescription(actionId: string): string {
     case 'export-graph': return 'Export the active graph as an archive (.tar.gz) you can import again.'
     case 'import-graph': return 'Import a Mycl graph archive (.tar.gz) into a new graph ID.'
     case 'import-files': return 'Choose Markdown, text, PDF, EPUB, Word or notebook files to bring into this graph.'
-    case 'import-obsidian': return 'Import an Obsidian vault as a .zip; its links become wires.'
+    case 'import-obsidian': return 'Bring in a whole Obsidian vault, a folder or a .zip, as a new graph. Its links become wires.'
     case 'import-notion': return 'Notion exports aren’t supported in this release. Coming soon.'
     case 'import-roam': return 'Roam Research exports aren’t supported in this release. Coming soon.'
     case 'refresh-history': return 'Reload graph restore points from gardend.'

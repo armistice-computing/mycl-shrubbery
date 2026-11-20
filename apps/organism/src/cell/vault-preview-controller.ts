@@ -1,7 +1,8 @@
 /**
  * Drives the vault preview dialog: choose a source, wait for the scan, page
- * through what it found. Nothing here writes to the graph (Door 1's commit
- * step does not exist yet; see VAULT_IMPORT_ENABLED in nucleus features.ts).
+ * through what it found. Nothing here writes to the graph: the import
+ * itself is cell/vault-import-controller.ts (VAULT_IMPORT_ENABLED in nucleus
+ * features.ts).
  *
  * The node's own rules apply: no retry of a choice, an expired or
  * unavailable scan means choose again, and a scan from a graph that was

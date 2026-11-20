@@ -1,0 +1,361 @@
+/**
+ * REAL component test - mn-document-switcher controlled search/command palette.
+ *
+ * The element renders caller-owned document/block/action rows and emits composed
+ * intents. It does not subscribe to stores, run block search, execute commands,
+ * or complete wires by itself.
+ */
+import { beforeAll, describe, expect, it } from 'vitest'
+import '../mn-document-switcher.js'
+import type {
+  MnDocumentSwitcher,
+  MnDocumentSwitcherActionDetail,
+  MnDocumentSwitcherIntentDetail,
+  MnDocumentSwitcherOpenBlockDetail,
+  MnDocumentSwitcherOpenDocumentDetail,
+  MnDocumentSwitcherQueryDetail,
+  MnDocumentSwitcherScopeDetail,
+  MnDocumentSwitcherWireTargetDetail,
+} from '../mn-document-switcher.js'
+
+async function mount(setup?: (el: MnDocumentSwitcher) => void): Promise<MnDocumentSwitcher> {
+  const el = document.createElement('mn-document-switcher') as MnDocumentSwitcher
+  setup?.(el)
+  document.body.appendChild(el)
+  await el.updateComplete
+  return el
+}
+
+const sr = (el: MnDocumentSwitcher) => el.shadowRoot!
+
+describe('mn-document-switcher - real custom element', () => {
+  beforeAll(() => {
+    expect(customElements.get('mn-document-switcher')).toBeDefined()
+  })
+
+  it('renders controlled document/block rows and emits query changes', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'graph-a'
+      node.query = 'arch'
+      node.items = [
+        { kind: 'document', id: 'doc-a', label: 'Architecture', path: 'Notes' },
+        { kind: 'block', id: 'doc-b:block-1', documentId: 'doc-b', blockId: 'block-1', label: 'Billing', snippet: 'Architecture note', matchSource: 'semantic' },
+      ]
+    })
+    const queries: MnDocumentSwitcherQueryDetail[] = []
+    el.addEventListener('mn-document-switcher-query-change', (event) => {
+      queries.push((event as CustomEvent<MnDocumentSwitcherQueryDetail>).detail)
+    })
+
+    expect(sr(el).querySelectorAll('.row')).toHaveLength(2)
+    expect(sr(el).querySelector('[data-item-id="doc-a"]')?.textContent).toContain('Architecture')
+    expect(sr(el).querySelector('[data-item-id="doc-b:block-1"]')?.textContent).toContain('semantic')
+
+    const input = sr(el).querySelector('.input') as HTMLInputElement
+    input.value = 'billing'
+    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }))
+
+    expect(queries).toEqual([{ query: 'billing', scope: 'all' }])
+  })
+
+  it('opens selected documents and blocks through composed intents', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'graph-a'
+      node.items = [
+        { kind: 'document', id: 'doc-a', label: 'Architecture' },
+        { kind: 'block', id: 'doc-b:block-1', documentId: 'doc-b', blockId: 'block-1', label: 'Billing', snippet: 'Pay invoices' },
+      ]
+    })
+    const openedDocs: MnDocumentSwitcherOpenDocumentDetail[] = []
+    const openedBlocks: MnDocumentSwitcherOpenBlockDetail[] = []
+    let closed = 0
+    el.addEventListener('mn-document-switcher-open-document', (event) => {
+      openedDocs.push((event as CustomEvent<MnDocumentSwitcherOpenDocumentDetail>).detail)
+    })
+    el.addEventListener('mn-document-switcher-open-block', (event) => {
+      openedBlocks.push((event as CustomEvent<MnDocumentSwitcherOpenBlockDetail>).detail)
+    })
+    el.addEventListener('mn-document-switcher-close', () => {
+      closed += 1
+    })
+
+    ;(sr(el).querySelector('[data-item-id="doc-a"]') as HTMLElement).click()
+    await el.updateComplete
+    expect(openedDocs[0]).toMatchObject({ graphId: 'graph-a', documentId: 'doc-a' })
+    expect(closed).toBe(1)
+
+    el.open = true
+    await el.updateComplete
+    ;(sr(el).querySelector('[data-item-id="doc-b:block-1"]') as HTMLElement).click()
+    await el.updateComplete
+
+    expect(openedBlocks[0]).toMatchObject({ graphId: 'graph-a', documentId: 'doc-b', blockId: 'block-1' })
+    expect(closed).toBe(2)
+  })
+
+  it('emits document preparation intent from pointer and keyboard highlight without opening', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'graph-a'
+      node.items = [
+        { kind: 'document', id: 'doc-a', label: 'Architecture' },
+        { kind: 'block', id: 'doc-b:block-1', documentId: 'doc-b', blockId: 'block-1', label: 'Billing' },
+      ]
+    })
+    const intents: MnDocumentSwitcherIntentDetail[] = []
+    const intentEnds: MnDocumentSwitcherIntentDetail[] = []
+    el.addEventListener('mn-document-switcher-document-intent', event => {
+      intents.push((event as CustomEvent<MnDocumentSwitcherIntentDetail>).detail)
+    })
+    el.addEventListener('mn-document-switcher-document-intent-end', event => {
+      intentEnds.push((event as CustomEvent<MnDocumentSwitcherIntentDetail>).detail)
+    })
+
+    ;(sr(el).querySelector('[data-item-id="doc-b:block-1"]') as HTMLElement).dispatchEvent(
+      new MouseEvent('mouseenter'),
+    )
+    await el.updateComplete
+
+    expect(intents.at(-1)).toMatchObject({
+      graphId: 'graph-a',
+      documentId: 'doc-b',
+    })
+    ;(sr(el).querySelector('.container') as HTMLElement).dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }),
+    )
+    expect(intentEnds.at(-1)).toMatchObject({
+      graphId: 'graph-a',
+      documentId: 'doc-b',
+    })
+    expect(el.open).toBe(false)
+  })
+
+  it('runs action rows and scope/sort controls as intents only', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.scope = 'actions'
+      node.actions = [
+        { id: 'doc.new', label: 'New Document', category: 'Document', icon: 'file-text', shortcut: 'Mod+N' },
+      ]
+    })
+    const actions: MnDocumentSwitcherActionDetail[] = []
+    const scopes: MnDocumentSwitcherScopeDetail[] = []
+    el.addEventListener('mn-document-switcher-run-action', (event) => {
+      actions.push((event as CustomEvent<MnDocumentSwitcherActionDetail>).detail)
+    })
+    el.addEventListener('mn-document-switcher-scope-change', (event) => {
+      scopes.push((event as CustomEvent<MnDocumentSwitcherScopeDetail>).detail)
+    })
+
+    expect(sr(el).querySelector('[data-action-id="doc.new"]')?.textContent).toContain('New Document')
+    ;(sr(el).querySelector('[data-action-id="doc.new"]') as HTMLElement).click()
+    expect(actions[0]).toMatchObject({ actionId: 'doc.new' })
+
+    el.open = true
+    await el.updateComplete
+    const documentsButton = Array.from(sr(el).querySelectorAll('.scope-button')).find((button) => button.textContent === 'Documents') as HTMLButtonElement
+    documentsButton.click()
+
+    expect(scopes).toEqual([{ scope: 'documents' }])
+  })
+
+  it('finds graphs by name in the Graphs tab and asks to switch to one', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'home'
+      node.scope = 'graphs'
+      node.query = 'res'
+      node.graphs = [
+        { id: 'home', label: 'Home graph' },
+        { id: 'research', label: 'Research notes' },
+        { id: 'old', label: 'Restored archive', disabled: true },
+      ]
+    })
+    const rows = Array.from(sr(el).querySelectorAll('[data-graph-id]')).map(row => row.getAttribute('data-graph-id'))
+    expect(rows).toEqual(['research'])
+    expect((sr(el).querySelector('input') as HTMLInputElement).placeholder).toBe('Find a graph…')
+    const opened: string[] = []
+    el.addEventListener('mn-document-switcher-open-graph', ((event: CustomEvent<{ graphId: string }>) => { opened.push(event.detail.graphId) }) as EventListener)
+    sr(el).querySelector('.container')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }))
+    expect(opened).toEqual(['research'])
+    expect(el.open).toBe(false)
+  })
+
+  it('lists matching graphs under All results, and Enter on one asks to switch', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'home'
+      node.scope = 'all'
+      node.query = 'res'
+      node.items = [{ kind: 'document', id: 'doc-1', documentId: 'doc-1', label: 'Research plan' }]
+      node.graphs = [
+        { id: 'home', label: 'Home graph' },
+        { id: 'research', label: 'Research notes' },
+      ]
+    })
+    const rows = Array.from(sr(el).querySelectorAll('[role="option"]'))
+    expect(rows).toHaveLength(2)
+    expect(rows[1]!.getAttribute('data-graph-id')).toBe('research')
+    const opened: string[] = []
+    el.addEventListener('mn-document-switcher-open-graph', ((event: CustomEvent<{ graphId: string }>) => { opened.push(event.detail.graphId) }) as EventListener)
+    const container = sr(el).querySelector('.container')!
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, composed: true }))
+    await el.updateComplete
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }))
+    expect(opened).toEqual(['research'])
+  })
+
+  it('All puts graphs between documents and blocks, and keeps the selection when blocks arrive late', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'home'
+      node.scope = 'all'
+      node.query = 'res'
+      node.items = [{ kind: 'document', id: 'doc-1', documentId: 'doc-1', label: 'Research plan' }]
+      node.graphs = [{ id: 'research', label: 'Research notes' }]
+    })
+    const container = sr(el).querySelector('.container')!
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, composed: true }))
+    await el.updateComplete
+    expect(sr(el).querySelector('[aria-selected="true"]')!.getAttribute('data-graph-id')).toBe('research')
+    el.items = [
+      { kind: 'document', id: 'doc-1', documentId: 'doc-1', label: 'Research plan' },
+      { kind: 'block', id: 'blk-1', documentId: 'doc-2', blockId: 'b1', label: 'Notes', snippet: 'research' },
+      { kind: 'block', id: 'blk-2', documentId: 'doc-3', blockId: 'b2', label: 'More', snippet: 'research' },
+    ]
+    await el.updateComplete
+    const rows = Array.from(sr(el).querySelectorAll('[role="option"]'))
+    expect(rows.map(row => row.getAttribute('data-item-id') ?? row.getAttribute('data-graph-id')))
+      .toEqual(['doc-1', 'research', 'blk-1', 'blk-2'])
+    expect(sr(el).querySelector('[aria-selected="true"]')!.getAttribute('data-graph-id')).toBe('research')
+    const opened: string[] = []
+    el.addEventListener('mn-document-switcher-open-graph', ((event: CustomEvent<{ graphId: string }>) => { opened.push(event.detail.graphId) }) as EventListener)
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }))
+    expect(opened).toEqual(['research'])
+  })
+
+  it('All lists no graphs before anything is typed', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.scope = 'all'
+      node.graphs = [{ id: 'research', label: 'Research notes' }]
+    })
+    expect(sr(el).querySelector('[data-graph-id]')).toBeNull()
+  })
+
+  it('says it searches this graph', async () => {
+    const el = await mount((node) => { node.open = true; node.scope = 'all' })
+    expect((sr(el).querySelector('input') as HTMLInputElement).placeholder).toBe('Search this graph…')
+  })
+
+  it('search has no Actions tab, and the command list shows no search tabs', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.scope = 'all'
+    })
+    const labels = Array.from(sr(el).querySelectorAll('.scope-button')).map(button => button.textContent)
+    expect(labels).toEqual(['All', 'Documents', 'Blocks', 'Graphs'])
+    expect(sr(el).querySelector('.scope-group')?.hasAttribute('hidden')).toBe(false)
+
+    el.scope = 'actions'
+    await el.updateComplete
+    expect(sr(el).querySelector('.scope-group')?.hasAttribute('hidden')).toBe(true)
+  })
+
+  it('supports keyboard navigation, close, and wire-mode selection', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.wireMode = true
+      node.graphId = 'graph-a'
+      node.items = [
+        { kind: 'document', id: 'doc-a', label: 'A' },
+        { kind: 'document', id: 'doc-b', label: 'B' },
+      ]
+    })
+    const wires: MnDocumentSwitcherWireTargetDetail[] = []
+    let closed = 0
+    el.addEventListener('mn-document-switcher-wire-target', (event) => {
+      wires.push((event as CustomEvent<MnDocumentSwitcherWireTargetDetail>).detail)
+    })
+    el.addEventListener('mn-document-switcher-close', () => {
+      closed += 1
+    })
+
+    const container = sr(el).querySelector('.container') as HTMLElement
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, composed: true }))
+    await el.updateComplete
+    expect(el.selectedIndex).toBe(1)
+
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }))
+    expect(wires[0]).toMatchObject({ graphId: 'graph-a', documentId: 'doc-b' })
+    expect(el.open).toBe(true)
+
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }))
+    expect(el.open).toBe(false)
+    expect(closed).toBe(1)
+  })
+
+  it('layers its backdrop and container on the modal-backdrop/modal tiers, not both on modal', async () => {
+    // Semantic-consumer proof for the layer-contract token scale: the backdrop
+    // must sit on --mn-z-modal-backdrop (below the surface it dims) and the
+    // container on --mn-z-modal — not both stacked on --mn-z-modal, which
+    // bypassed the dedicated backdrop tier the scale introduced.
+    const el = await mount((node) => { node.open = true })
+    const backdrop = sr(el).querySelector('.backdrop') as HTMLElement
+    const container = sr(el).querySelector('.container') as HTMLElement
+
+    const backdropZ = Number(getComputedStyle(backdrop).zIndex)
+    const containerZ = Number(getComputedStyle(container).zIndex)
+
+    expect(backdropZ).toBe(1300) // --mn-z-modal-backdrop fallback
+    expect(containerZ).toBe(1400) // --mn-z-modal fallback
+    expect(containerZ).toBeGreaterThan(backdropZ)
+  })
+
+  it('the arrow keys scroll the selected row into the list, hover does not', async () => {
+    const el = await mount((node) => {
+      node.open = true
+      node.graphId = 'graph-a'
+      node.items = Array.from({ length: 30 }, (_, i) => ({ kind: 'document' as const, id: `doc-${i}`, label: `Doc ${i}` }))
+    })
+    const list = sr(el).querySelector('.results') as HTMLElement
+    // happy-dom has no layout: a 100px list showing rows 0-3; rows are 25px.
+    const box = (top: number, height: number) => ({ top, bottom: top + height, left: 0, right: 0, width: 0, height, x: 0, y: top, toJSON() {} })
+    list.getBoundingClientRect = () => box(0, 100) as DOMRect
+    const placeRows = () => {
+      sr(el).querySelectorAll<HTMLElement>('[role="option"]').forEach((row, i) => {
+        row.getBoundingClientRect = () => box(i * 25 - list.scrollTop, 25) as DOMRect
+      })
+    }
+    placeRows()
+    const container = sr(el).querySelector('.container') as HTMLElement
+    const down = async () => {
+      container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, composed: true }))
+      await el.updateComplete
+      placeRows()
+    }
+    for (let i = 0; i < 3; i++) await down()
+    expect(list.scrollTop).toBe(0)
+    await down()
+    expect(el.selectedIndex).toBe(4)
+    expect(list.scrollTop).toBe(25)
+    container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, composed: true }))
+    await el.updateComplete
+    placeRows()
+    for (let i = 0; i < 3; i++) {
+      container.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, composed: true }))
+      await el.updateComplete
+      placeRows()
+    }
+    expect(el.selectedIndex).toBe(0)
+    expect(list.scrollTop).toBe(0)
+
+    const before = list.scrollTop
+    sr(el).querySelectorAll<HTMLElement>('[role="option"]')[20]!.dispatchEvent(new MouseEvent('mouseenter'))
+    await el.updateComplete
+    expect(el.selectedIndex).toBe(20)
+    expect(list.scrollTop).toBe(before)
+  })
+})

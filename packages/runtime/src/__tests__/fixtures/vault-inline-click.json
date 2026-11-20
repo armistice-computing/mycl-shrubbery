@@ -1,0 +1,70 @@
+{
+  "sourceDocumentId": "vault-doc-4adee3833040af4836729a114a20628e926ecc0247a159b0fc112d1c1ebe0fd1",
+  "graphId": "target",
+  "document": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "data-block-id": "block-51842cd0"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "See "
+          },
+          {
+            "type": "wikilink",
+            "attrs": {
+              "targetGraphId": "target",
+              "label": "the note",
+              "targetDocId": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb",
+              "wireId": "vault-inline-af46a9d8b15083729b823647608f337326b8e66156b1eea16a8afbc623fa6542"
+            }
+          },
+          {
+            "type": "text",
+            "text": " and "
+          },
+          {
+            "type": "wikilink",
+            "attrs": {
+              "targetGraphId": "target",
+              "wireId": "vault-inline-ddaa014674b31b516e410ddef95b4efe674faa59d572af8a55aed7fa2a26c93a",
+              "targetDocId": "",
+              "targetArtifactId": "artifact-be40f1b3ad38aa1b5e8a2f0822b399931326f7e07b50dc8a2ce63804846846cc",
+              "label": "the file"
+            }
+          },
+          {
+            "type": "text",
+            "text": "."
+          }
+        ]
+      }
+    ]
+  },
+  "wires": [
+    {
+      "id": "vault-inline-af46a9d8b15083729b823647608f337326b8e66156b1eea16a8afbc623fa6542",
+      "predicate": "relatedTo",
+      "source_offset": 4,
+      "source_block_id": "block-51842cd0",
+      "target_entry": 1,
+      "target_graph": "target",
+      "target_id": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb",
+      "artifact": false
+    },
+    {
+      "id": "vault-inline-ddaa014674b31b516e410ddef95b4efe674faa59d572af8a55aed7fa2a26c93a",
+      "predicate": "relatedTo",
+      "source_offset": 23,
+      "source_block_id": "block-51842cd0",
+      "target_entry": 2,
+      "target_graph": "target",
+      "target_id": "artifact-be40f1b3ad38aa1b5e8a2f0822b399931326f7e07b50dc8a2ce63804846846cc",
+      "artifact": true
+    }
+  ]
+}

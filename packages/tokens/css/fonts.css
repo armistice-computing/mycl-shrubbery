@@ -1,0 +1,28 @@
+/* ═══ REPOSITORY-OWNED CORE TYPEFACES ═══════════════════════════════════════
+ * Garden's mature frontend requests these faces from Google Fonts at runtime.
+ * Shrubbery is local-first and must render the same way offline, so the core
+ * faces are bundled from Fontsource's OFL-licensed WOFF2 packages instead.
+ *
+ * Only the product's structural families live here: Piazzolla (the Garden
+ * serif since 2026-10-14), Literata (the serif before it, still selectable),
+ * Source Sans 3, JetBrains Mono, Inter and Public Sans. Optional document
+ * fonts remain caller-extensible through <mn-editor-toolbar>. */
+
+/* Literata is NOT imported from fontsource directly: its faces there declare
+ * `font-weight: 200 900`, and a variable font renders whatever weight its face
+ * declares. Cloud-1's copy comes from Google Fonts having asked for 400/500/600
+ * only, so its face declares `400 600` and every 700 in that app renders at 600
+ * — the lighter bold Eschaton compared side by side and chose to keep. Our copy
+ * is the same fontsource WOFF2 files, re-declared with that range. */
+@import './literata-clamped.css';
+@import '@fontsource-variable/source-sans-3/wght.css';
+@import '@fontsource-variable/source-sans-3/wght-italic.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght-italic.css';
+@import '@fontsource-variable/inter/standard.css';
+@import '@fontsource-variable/inter/standard-italic.css';
+@import '@fontsource-variable/public-sans/wght.css';
+@import '@fontsource-variable/public-sans/wght-italic.css';
+/* Piazzolla is the Garden face for chrome and prose (2026-10-14), clamped at
+ * 600 like Literata for the same reason; see piazzolla-clamped.css. */
+@import './piazzolla-clamped.css';

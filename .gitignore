@@ -1,0 +1,20 @@
+node_modules/
+dist/
+dist-*/
+storybook-static/
+conneg-static/
+*.tsbuildinfo
+.DS_Store
+
+# Downloaded local embedding models; disposable and recreated by gardend tests.
+**/.fastembed_cache/
+
+# Runtime artifact written by `pnpm gardend:dev` (loopback coords + token).
+# Server-side only — must NEVER be committed (contains a session bearer token).
+apps/organism/.gardend-loopback.json
+
+
+# A real imported graph cached for the cutover reproduction harness
+# (apps/organism/scripts/imported-graph-new-document-browser.mts). Gigabytes
+# of somebody's actual notes — never a repository artifact.
+apps/organism/.gardend-imported-profile/

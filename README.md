@@ -10,6 +10,12 @@ The frontend of [Mycl](https://github.com/armistice-computing/mycl), a knowledge
 - `packages/runtime`: puts the editor and components together into a working window.
 - `packages/nucleus`: shared types, the feature switches (`src/features.ts`) and the one interface the frontend uses to reach the backend.
 - `packages/tokens`: colors, type and spacing, light and dark.
+- `packages/source`: where the triples come from: adapters for a local graph node and the boot factory.
+- `packages/render`: turtle, JSON-LD and markdown views of a resource.
+- `packages/site`: route, face and appearance bundles over a workspace layout.
+- `packages/hoja`: a plain text-entry surface over the editor kernel.
+- `packages/chat-kernel`: chat rendering types and the chat event union.
+- `packages/domain-kit`: graph contracts for domains: manifests, verdicts, dashboards and grants.
 
 How the parts fit, and why the frontend never talks to a backend directly: [ARCHITECTURE.md](ARCHITECTURE.md). Design notes: [docs/](docs/).
 

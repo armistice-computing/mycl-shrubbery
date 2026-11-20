@@ -1,0 +1,37 @@
+/* ═══ INCREASE CONTRAST (prefers-contrast: more) ═════════════════════════════
+ * The quiet default stays the default. When the person turns on macOS
+ * "Increase contrast" (Accessibility › Display), borders, secondary text and
+ * the focus ring get stronger (Eschaton, T8 2026-11-17).
+ *
+ * Skins set these tokens at [data-skin] and [data-theme="dark"][data-skin]
+ * specificity, so this block matches both and is imported last.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-contrast: more) {
+  :root,
+  [data-skin],
+  [data-theme][data-skin] {
+    --mn-color-text-secondary: var(--mn-ref-parchment-800, #292723);
+    --mn-color-text-tertiary: var(--mn-ref-parchment-700, #403d38);
+    --mn-color-text-muted: var(--mn-ref-parchment-700, #403d38);
+    --mn-color-text-quiet: var(--mn-ref-parchment-700, #403d38);
+    --mn-color-border-subtle: rgba(64, 61, 56, 0.32);
+    --mn-color-border-default: var(--mn-ref-parchment-400, #9b958b);
+    --mn-color-border-strong: var(--mn-ref-parchment-600, #5c5850);
+    --mn-color-rule: rgba(43, 67, 55, 0.3);
+    --mn-focus-ring: 0 0 0 2px var(--mn-focus-ring-color), 0 0 0 5px rgb(var(--mn-color-accent-ch) / 0.28);
+    --mn-focus-ring-width: 2px;
+  }
+
+  [data-theme="dark"],
+  [data-theme="dark"][data-skin] {
+    --mn-color-text-secondary: #d6dad2;
+    --mn-color-text-tertiary: #c3c8bf;
+    --mn-color-text-muted: #c3c8bf;
+    --mn-color-text-quiet: #c3c8bf;
+    --mn-color-border-subtle: rgba(222, 230, 220, 0.3);
+    --mn-color-border-default: #5d655a;
+    --mn-color-border-strong: #7c8578;
+    --mn-color-rule: rgba(222, 230, 220, 0.3);
+  }
+}

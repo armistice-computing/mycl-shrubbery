@@ -1,0 +1,29 @@
+{
+  "name": "mycl-shrubbery",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The frontend of Mycl: the editor, sidebars, wires, atlas, Home and Settings.",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test:run",
+    "test:run": "pnpm -r test:run",
+    "test:source": "pnpm -r exec vitest run --exclude '**/*.browser.test.ts' --exclude '**/*.integration.test.ts' --exclude '**/*.probe.test.ts' --passWithNoTests",
+    "test:browser-suites": "pnpm -r exec vitest run browser.test.ts --passWithNoTests",
+    "test:all": "pnpm -r --no-bail run test:run",
+    "lint": "biome lint .",
+    "guard:no-mocks": "node scripts/validate-no-mocks.mjs"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.4",
+    "@types/http-proxy": "1.17.17",
+    "http-proxy": "1.18.1"
+  },
+  "license": "PolyForm-Noncommercial-1.0.0"
+}

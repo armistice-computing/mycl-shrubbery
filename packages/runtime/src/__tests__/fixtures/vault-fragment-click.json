@@ -1,0 +1,128 @@
+{
+  "sourceDocumentId": "vault-doc-4adee3833040af4836729a114a20628e926ecc0247a159b0fc112d1c1ebe0fd1",
+  "targetDocumentId": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb",
+  "graphId": "target",
+  "document": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "data-block-id": "block-328501be"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "See "
+          },
+          {
+            "type": "wikilink",
+            "attrs": {
+              "targetGraphId": "target",
+              "targetDocId": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb",
+              "targetBlockId": "block-b285482e",
+              "wireId": "vault-inline-af46a9d8b15083729b823647608f337326b8e66156b1eea16a8afbc623fa6542",
+              "label": "the heading"
+            }
+          },
+          {
+            "type": "text",
+            "text": " and "
+          },
+          {
+            "type": "wikilink",
+            "attrs": {
+              "wireId": "vault-inline-f40a9619396fabaa834197aab07d4173c4b6b800ac1995f5db7a202a33e630ee",
+              "label": "the passage",
+              "targetBlockId": "block-b38549c1",
+              "targetGraphId": "target",
+              "targetDocId": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb"
+            }
+          },
+          {
+            "type": "text",
+            "text": "."
+          }
+        ]
+      }
+    ]
+  },
+  "targetDocument": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "level": 1.0,
+          "data-block-id": "block-b285482e"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Heading"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "data-block-id": "block-b38549c1"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Body ^marker"
+          }
+        ]
+      }
+    ]
+  },
+  "targetBlocks": [
+    {
+      "id": "block-b285482e",
+      "type": "heading",
+      "content": "Heading",
+      "parentId": null,
+      "order": 0,
+      "level": 1,
+      "checked": null,
+      "language": null,
+      "marks": []
+    },
+    {
+      "id": "block-b38549c1",
+      "type": "paragraph",
+      "content": "Body ^marker",
+      "parentId": null,
+      "order": 1,
+      "level": null,
+      "checked": null,
+      "language": null,
+      "marks": []
+    }
+  ],
+  "wires": [
+    {
+      "id": "vault-inline-af46a9d8b15083729b823647608f337326b8e66156b1eea16a8afbc623fa6542",
+      "predicate": "relatedTo",
+      "source_offset": 4,
+      "source_block_id": "block-328501be",
+      "target_entry": 1,
+      "target_graph": "target",
+      "target_id": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb",
+      "target_block_id": "block-b285482e",
+      "artifact": false
+    },
+    {
+      "id": "vault-inline-f40a9619396fabaa834197aab07d4173c4b6b800ac1995f5db7a202a33e630ee",
+      "predicate": "relatedTo",
+      "source_offset": 34,
+      "source_block_id": "block-328501be",
+      "target_entry": 1,
+      "target_graph": "target",
+      "target_id": "vault-doc-a018f6b19b33f6972e5b3b226922bad34b3518ebd80e3b4bfa10bd14a891fabb",
+      "target_block_id": "block-b38549c1",
+      "artifact": false
+    }
+  ]
+}

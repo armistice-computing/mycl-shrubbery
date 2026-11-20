@@ -41,11 +41,12 @@ import {
   type CreateAgentRequest,
 } from '../agents-settings-model.js'
 
-// The garden checkout sits beside the shrubbery worktrees in the house's
+// The backend checkout (mycl, or the older garden) sits beside this repository in the
 // layout. Elsewhere (CI, a fresh clone) the derivation tests skip.
 const HERE = dirname(fileURLToPath(import.meta.url))
 const GARDEN = [
   process.env.GARDEN_REPO,
+  resolve(HERE, '../../../../../../mycl'),
   resolve(HERE, '../../../../../../garden'),
 ].find((path): path is string => Boolean(path && existsSync(resolve(path, 'parity/local-loopback-surface.json'))))
 

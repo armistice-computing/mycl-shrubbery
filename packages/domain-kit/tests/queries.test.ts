@@ -10,7 +10,7 @@ import { buildDomainVerdict, verdictToNt } from '../src/verdict.js'
 const NT = 'application/n-triples'
 const GRAPH_ID = 'shrubbery-domain'
 const MANIFEST_PATH = fileURLToPath(
-  new URL('../../../docs/acceptance/garden-capability-manifest.json', import.meta.url),
+  new URL('./fixtures/garden-capability-manifest.json', import.meta.url),
 )
 
 describe('standard Domain Kit query contract', () => {

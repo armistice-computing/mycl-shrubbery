@@ -17,7 +17,7 @@ The frontend of [Mycl](https://github.com/armistice-computing/mycl), a knowledge
 - `packages/chat-kernel`: chat rendering types and the chat event union.
 - `packages/domain-kit`: graph contracts for domains: manifests, verdicts, dashboards and grants.
 
-How the parts fit, and why the frontend never talks to a backend directly: [ARCHITECTURE.md](ARCHITECTURE.md). Design notes: [docs/](docs/).
+How the parts fit: [ARCHITECTURE.md](ARCHITECTURE.md), with more on [the backend seam](docs/architecture/backend.md), [layout](docs/architecture/layout.md) and [testing](docs/architecture/testing.md).
 
 ## Run it
 

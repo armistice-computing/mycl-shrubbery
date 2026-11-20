@@ -12,7 +12,7 @@ import {
 } from '../src/manifest.js'
 
 const gardenManifestPath = fileURLToPath(
-  new URL('../../../docs/acceptance/garden-capability-manifest.json', import.meta.url),
+  new URL('./fixtures/garden-capability-manifest.json', import.meta.url),
 )
 
 describe('Domain Kit capability-manifest codec', () => {

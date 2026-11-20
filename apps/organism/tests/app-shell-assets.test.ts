@@ -42,12 +42,12 @@ describe('organism app-shell assets', () => {
     expect(icons).toHaveLength(1)
     const [iconTag] = icons
     if (!iconTag) throw new Error('settings route omitted its favicon declaration')
-    expect(attribute(iconTag, 'type')).toBe('image/png')
-    expect(attribute(iconTag, 'href')).toBe('/sophialabslogo.png')
+    expect(attribute(iconTag, 'type')).toBe('image/svg+xml')
+    expect(attribute(iconTag, 'href')).toBe('/mycl-icon.svg')
 
     const icon = await fetch(new URL(attribute(iconTag, 'href')!, routeUrl))
     expect(icon.status).toBe(200)
-    expect(icon.headers.get('content-type')).toContain('image/png')
+    expect(icon.headers.get('content-type')).toContain('image/svg+xml')
     expect((await icon.arrayBuffer()).byteLength).toBeGreaterThan(0)
   })
 })

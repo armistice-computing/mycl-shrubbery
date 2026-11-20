@@ -33,9 +33,15 @@ On macOS, `pnpm -C apps/organism dev:live` points the window at the graph of a r
 
 Read [ARCHITECTURE.md](ARCHITECTURE.md) first, then `apps/organism/src/main.ts`. Hidden features are switched off in `packages/nucleus/src/features.ts`. Check a change with `pnpm -C apps/organism typecheck`, `pnpm test:source` and `pnpm build`.
 
+## Read more
+
+On how we think about designing it:
+
+- [The Garden Design Antinomies](docs/writings/garden-design-antinomies.md)
+
 ## Where it comes from
 
-Mycl is a fork of Sophia Labs' Garden project, made by a former member of Sophia Labs. This frontend began as an extraction of Garden's frontend. Garden's current form is at [sophia-labs/gardend](https://github.com/sophia-labs/gardend).
+Mycl is a fork of Sophia Labs' Garden project, made by a former member of Sophia Labs. This frontend began as an extraction of Garden's frontend, whose current form is at [sophia-labs/shrubbery](https://github.com/sophia-labs/shrubbery).
 
 ## License
 

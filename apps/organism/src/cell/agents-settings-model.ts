@@ -372,7 +372,7 @@ export interface AgentLaunchInfo {
  * and the page says to change it if the app lives elsewhere.
  */
 export const DEFAULT_LAUNCH_INFO: AgentLaunchInfo = {
-  command: '/Applications/Garden.app/Contents/MacOS/garden',
+  command: '/Applications/Mycl.app/Contents/MacOS/mycl',
   args: ['--mcp-stdio'],
   envNames: ['GARDEN_MCP_TOKEN'],
 }

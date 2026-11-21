@@ -173,10 +173,10 @@ describe('agent access model', () => {
   })
 
   it('writes a config for each agent app, with the key and the bridge command', () => {
-    const launch: AgentLaunchInfo = { command: '/Apps/My App.app/bin/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }
+    const launch: AgentLaunchInfo = { command: '/Apps/My App.app/bin/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }
     expect(serverName('Claude Code on my laptop')).toBe('mycl-claude-code-on-my-laptop')
     expect(agentConfigSnippet('claude-code', 'Laptop', 'tok', launch))
-      .toBe("claude mcp add mycl-laptop --scope user --env GARDEN_MCP_TOKEN=tok -- '/Apps/My App.app/bin/garden' --mcp-stdio")
+      .toBe("claude mcp add mycl-laptop --scope user --env GARDEN_MCP_TOKEN=tok -- '/Apps/My App.app/bin/mycl' --mcp-stdio")
     const desktop = JSON.parse(agentConfigSnippet('claude-desktop', 'Laptop', 'tok', launch))
     expect(desktop).toEqual({ mcpServers: { 'mycl-laptop': { command: launch.command, args: ['--mcp-stdio'], env: { GARDEN_MCP_TOKEN: 'tok' } } } })
     expect(agentConfigSnippet('codex', 'Laptop', 'tok')).toBe([
@@ -188,7 +188,7 @@ describe('agent access model', () => {
   })
 
   it('writes Cursor, Gemini CLI and Kimi Code entries, and asks Kimi to drop the doubled structured results', () => {
-    const launch: AgentLaunchInfo = { command: '/Apps/Mycl.app/bin/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }
+    const launch: AgentLaunchInfo = { command: '/Apps/Mycl.app/bin/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }
     const entry = (harness: Parameters<typeof agentConfigSnippet>[0]) =>
       JSON.parse(agentConfigSnippet(harness, 'Laptop', 'tok', launch)).mcpServers['mycl-laptop']
     expect(entry('cursor')).toEqual({ type: 'stdio', command: launch.command, args: ['--mcp-stdio'], env: { GARDEN_MCP_TOKEN: 'tok' } })
@@ -204,15 +204,15 @@ describe('agent access model', () => {
   })
 
   it('removes the old Claude Code entry first when the key replaces one, and lists the raw pieces for other apps', () => {
-    const launch: AgentLaunchInfo = { command: '/Apps/Mycl.app/bin/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }
+    const launch: AgentLaunchInfo = { command: '/Apps/Mycl.app/bin/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }
     expect(agentConfigSnippet('claude-code', 'Laptop', 'tok2', launch, { replace: true })).toBe([
       'claude mcp remove mycl-laptop --scope user',
-      'claude mcp add mycl-laptop --scope user --env GARDEN_MCP_TOKEN=tok2 -- /Apps/Mycl.app/bin/garden --mcp-stdio',
+      'claude mcp add mycl-laptop --scope user --env GARDEN_MCP_TOKEN=tok2 -- /Apps/Mycl.app/bin/mycl --mcp-stdio',
     ].join('\n'))
     // A re-issue changes nothing but the key for the apps that read a file.
     expect(agentConfigSnippet('codex', 'Laptop', 'tok2', launch, { replace: true })).toBe(agentConfigSnippet('codex', 'Laptop', 'tok2', launch))
     expect(agentConfigSnippet('other', 'Laptop', 'tok', launch)).toBe([
-      'Command: /Apps/Mycl.app/bin/garden',
+      'Command: /Apps/Mycl.app/bin/mycl',
       'Arguments: --mcp-stdio',
       'Environment variable: GARDEN_MCP_TOKEN=tok',
     ].join('\n'))
@@ -262,9 +262,9 @@ describe('GardendAgentsSettingsApi', () => {
     const failing = new GardendAgentsSettingsApi({ contract, graphId: 'g', fetch, invoke: async () => { throw new Error('unknown command') } })
     expect(await failing.launchInfo()).toBeNull()
     await expect(api.reissue('t1')).rejects.toBeInstanceOf(AgentsNotOwnerError)
-    const knowing = new GardendAgentsSettingsApi({ contract, graphId: 'g', fetch, invoke: async () => ({ command: '/x/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }) })
-    expect(await knowing.launchInfo()).toEqual({ command: '/x/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'], translocated: false })
-    const moved = new GardendAgentsSettingsApi({ contract, graphId: 'g', fetch, invoke: async () => ({ command: '/private/var/folders/x/AppTranslocation/y/d/Garden.app/Contents/MacOS/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'], translocated: true }) })
+    const knowing = new GardendAgentsSettingsApi({ contract, graphId: 'g', fetch, invoke: async () => ({ command: '/x/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'] }) })
+    expect(await knowing.launchInfo()).toEqual({ command: '/x/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'], translocated: false })
+    const moved = new GardendAgentsSettingsApi({ contract, graphId: 'g', fetch, invoke: async () => ({ command: '/private/var/folders/x/AppTranslocation/y/d/Mycl.app/Contents/MacOS/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'], translocated: true }) })
     expect((await moved.launchInfo())?.translocated).toBe(true)
   })
 })
@@ -421,7 +421,7 @@ describe('mn-agents-settings', () => {
 
   it('shows the key alone, and says to move the app, when it runs translocated', async () => {
     const api = new FakeAgentsApi()
-    api.launch = { command: '/private/var/folders/x/AppTranslocation/y/d/Garden.app/Contents/MacOS/garden', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'], translocated: true }
+    api.launch = { command: '/private/var/folders/x/AppTranslocation/y/d/Mycl.app/Contents/MacOS/mycl', args: ['--mcp-stdio'], envNames: ['GARDEN_MCP_TOKEN'], translocated: true }
     const el = await mount(api)
     q<HTMLButtonElement>(el, '[data-action="open-form"]')!.click()
     await settle(el)

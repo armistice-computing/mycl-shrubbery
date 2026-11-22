@@ -10,6 +10,7 @@
  */
 
 import { Store, literal, namedNode, quad } from 'oxigraph'
+import { DEFAULT_WIRE_PREDICATE_NAME } from '@shrubbery/nucleus'
 import * as Y from 'yjs'
 import type {
   SourceBundle,
@@ -412,7 +413,7 @@ export function applyOfflineWorkspaceOverlay(
     if (sourceBlockId) addNode(store, subject, `${WIRE}sourceBlock`, blockIri(sourceDocumentId, sourceBlockId), graph)
     if (targetBlockId) addNode(store, subject, `${WIRE}targetBlock`, blockIri(targetDocumentId, targetBlockId), graph)
     addText(store, subject, `${WIRE}targetGraph`, text(value.targetGraphId) ?? graphId, graph)
-    const predicate = text(value.predicate) ?? 'isWiredTo'
+    const predicate = text(value.predicate) ?? DEFAULT_WIRE_PREDICATE_NAME
     addNode(
       store,
       subject,

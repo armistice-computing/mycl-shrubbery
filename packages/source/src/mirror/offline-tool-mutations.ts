@@ -1,4 +1,5 @@
 import type { SourceBundle, SourceOperation } from './source-mirror.js'
+import { DEFAULT_WIRE_PREDICATE_NAME } from '@shrubbery/nucleus'
 
 export type SourceOperationIdFactory = (toolName: string, index: number) => string
 
@@ -314,7 +315,7 @@ export function sourceOperationsForToolMutation(
             ?? null,
           predicate: stringAt(wire, ['predicate'])
             ?? stringAt(arguments_, ['predicate'])
-            ?? 'isWiredTo',
+            ?? DEFAULT_WIRE_PREDICATE_NAME,
           bidirectional: valueAt(wire, ['bidirectional'])
             ?? valueAt(arguments_, ['bidirectional'])
             ?? false,

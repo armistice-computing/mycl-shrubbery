@@ -20,7 +20,7 @@
  *     origin | find | target columns. Doc-as-folder browsing, emphasized
  *     search (lexical via the adapter), dashed semantic candidates
  *     (proximity offered, never predicates). Direction flip. The predicate
- *     ring (relatesTo central, scroll to cycle, click-away = neutral). The
+ *     ring (relatedTo central, scroll to cycle, click-away = neutral). The
  *     forming arc between the two ends, the settling fan, the drop-back —
  *     the editor was never unmounted.
  *
@@ -1667,7 +1667,7 @@ export class MspLiveStage extends LitElement {
       : null
     const keysHint = this._phase === 'find'
       ? 'search or browse for the other end — clicking one brings the pair to center · Esc cancels'
-      : 'scroll the ring or click away for relatesTo · Esc steps back'
+      : 'scroll the ring or click away for relatedTo · Esc steps back'
     return html`
       <div class="veil ${this._leaving ? 'leaving' : ''}" @wheel=${(e: WheelEvent) => this._ringScroll(e)}>
         <div class="stage-head">
@@ -1855,7 +1855,7 @@ export class MspLiveStage extends LitElement {
       return { p, x: Math.cos(angle) * radius, y: Math.sin(angle) * radius, i }
     })
     return html`
-      <div class="ring-backdrop" @click=${() => void this._commitWire('relatesTo')}></div>
+      <div class="ring-backdrop" @click=${() => void this._commitWire('relatedTo')}></div>
       <div class="ring-wrap" style="left:${r.x}px; top:${r.y}px">
         ${items.map(it => html`
           <div
@@ -1866,9 +1866,9 @@ export class MspLiveStage extends LitElement {
         `)}
         <button
           class="ring-center"
-          @click=${(e: MouseEvent) => { e.stopPropagation(); void this._commitWire('relatesTo') }}
-        >${r.sel >= 0 ? MSP_RING_PREDICATES[r.sel] : 'relatesTo'}</button>
-        <div class="ring-hint">scroll to cycle · center or click-away = relatesTo</div>
+          @click=${(e: MouseEvent) => { e.stopPropagation(); void this._commitWire('relatedTo') }}
+        >${r.sel >= 0 ? MSP_RING_PREDICATES[r.sel] : 'relatedTo'}</button>
+        <div class="ring-hint">scroll to cycle · center or click-away = relatedTo</div>
       </div>
     `
   }

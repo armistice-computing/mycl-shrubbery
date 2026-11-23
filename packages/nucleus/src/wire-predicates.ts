@@ -32,7 +32,7 @@ export const PREDICATE_GROUPS: Readonly<Record<string, PredicateCategoryDef>> = 
         label: 'grounds',
         description: 'A provides the material or experiential foundation that keeps B from being empty abstraction',
       },
-      { uri: `${MNEMO_NS}requires`, label: 'requires', description: 'B cannot exist or function without A' },
+      { uri: `${MNEMO_NS}requires`, label: 'requires', description: 'A cannot exist or function without B' },
       { uri: `${MNEMO_NS}enables`, label: 'enables', description: 'A creates the conditions for B to be possible' },
       { uri: `${MNEMO_NS}exemplifies`, label: 'exemplifies', description: 'A is a concrete instance that makes B real' },
     ],
@@ -61,7 +61,7 @@ export const PREDICATE_GROUPS: Readonly<Record<string, PredicateCategoryDef>> = 
     predicates: [
       { uri: `${MNEMO_NS}contains`, label: 'contains', description: 'A spatially or structurally includes B' },
       { uri: `${MNEMO_NS}precedes`, label: 'precedes', description: 'A comes before B in time or sequence' },
-      { uri: `${MNEMO_NS}consequenceOf`, label: 'consequence of', description: 'B is an effect or result of A' },
+      { uri: `${MNEMO_NS}consequenceOf`, label: 'consequence of', description: 'A is an effect or result of B' },
     ],
   },
 }
